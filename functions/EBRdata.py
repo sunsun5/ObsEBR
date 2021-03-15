@@ -1,4 +1,3 @@
-import os
 import urllib.request
 import pandas as pd
 import numpy as np
@@ -6,23 +5,25 @@ import numpy as np
 
 def read_file(year, month, day):
 
-    # Given a date, get the get its geomagnetic data from OE web
-    # and read it taking into account OE's file formats. Missing data
-    # will be added.
-    #
-    # >> Files from 2011 and before have an introduction
-    #    of 12 lines to be skipped. Have: EBRH,EBRZ,EBRF
-    #                               To be added: EBRX,EBRY
-    #
-    # >> Files between 2011 and 2017 (not included) generally have
-    #    an introduction of 26 lines to be skipped. Have: EBRX,EBRY,EBRZ,EBRF
-    #                                               To be added: EBRH
-    #      - Files from 2012 must skip 27 lines
-    #      - 21-06-2015 special case with 34 lines to be skipped
-    #
-    # >> Files from 2017 and after generally have an introduction
-    #    of 26 lines to be skipped. Have: EBRX,EBRY,EBRZ
-    #                               To be added: EBRF
+    """
+    Given a date (year, month and day separately), get its
+    geomagnetic data from OE web and read it taking into account
+    OE's file formats. Missing data will be added.
+
+     >> Files from 2011 and before have an introduction
+        of 12 lines to be skipped. Have: EBRH,EBRZ,EBRF
+                                   To be added: EBRX,EBRY
+
+     >> Files between 2011 and 2017 (not included) generally have
+        an introduction of 26 lines to be skipped. Have: EBRX,EBRY,EBRZ,EBRF
+                                                   To be added: EBRH
+          - Files from 2012 must skip 27 lines
+          - 21-06-2015 special case with 34 lines to be skipped
+
+     >> Files from 2017 and after generally have an introduction
+        of 26 lines to be skipped. Have: EBRX,EBRY,EBRZ
+                                   To be added: EBRF
+    """
 
     # Adapt url to desired date
 
@@ -68,12 +69,17 @@ def read_file(year, month, day):
         else:
             intro = 26
         data = pd.read_csv(file, skiprows=intro, delimiter='\\s+')
+        #Horitzontal module EBRF is missing
         data['EBRH'] = np.sqrt(data['EBRX']**2+data['EBRY']**2)
+
     elif float(year) >= 2017:
         data = pd.read_csv(file, skiprows=26, delimiter='\\s+')
+        #Total module EBRF is missing
         data['EBRF'] = np.sqrt(data['EBRX']**2+data['EBRY']**2+data['EBRZ']**2)
+
     else:
         data = pd.read_csv(file, skiprows=12, delimiter='\\s+')
+        #X and Y components are missing
         data['EBRX'] = data['EBRH']*np.cos(np.radians(data['EBRD']/60))
         data['EBRY'] = data['EBRH']*np.sin(np.radians(data['EBRD']/60))
 
