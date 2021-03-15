@@ -78,6 +78,3 @@ def read_file(year, month, day):
         data['EBRY'] = data['EBRH']*np.sin(np.radians(data['EBRD']/60))
 
     return data
-
-
-data = read_file(2013, 4,5)
