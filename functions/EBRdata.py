@@ -1,14 +1,17 @@
 import urllib.request
+from datetime import date
 import pandas as pd
 import numpy as np
+import astral.sun as AS
+from astral import LocationInfo
 
 
 def read_file(year, month, day):
 
     """
-    Given a date (year, month and day separately), get its
-    geomagnetic data from OE web and read it taking into account
-    OE's file formats. Missing data will be added.
+    Given a date (year, month, day), get its geomagnetic data
+    from OE web and read it taking into account OE's file formats.
+    Missing data will be added. OUTPUT: pandas dataframe
 
      >> Files from 2011 and before have an introduction
         of 12 lines to be skipped. Have: EBRH,EBRZ,EBRF
@@ -84,3 +87,32 @@ def read_file(year, month, day):
         data['EBRY'] = data['EBRH']*np.sin(np.radians(data['EBRD']/60))
 
     return data
+
+
+def day_times(year, month, day):
+    """
+    Given a date (year, month, day), get the corresponding sunrise
+    time, noon time and sunset time. Matrix also contains the matching
+    day minute, useful for time series with minute interval starting at 00:00.
+
+    OUTPUT: [[sunrise datetime, sunrise day minute],
+             [  noon datetime ,  noon day minute  ],
+             [ sunset datetime, sunset day minute ]]
+    """
+
+    studied_day = date(year, month, day)
+                                                    # Latitude, Longitude
+    city = LocationInfo("EBR", "Catalunya", "Europe", 40.820817, 0.495186)
+
+    daylight = AS.daylight(city.observer, studied_day)
+    noon = AS.noon(city.observer, studied_day)
+
+    sunrise_index = (daylight[0].hour)*60 + daylight[0].minute
+    noon_index = (noon.hour)*60 + noon.minute
+    sunset_index = (daylight[1].hour)*60 + daylight[1].minute
+
+    rise_noon_set_indexes = [[daylight[0], sunrise_index],
+                             [noon, noon_index],
+                             [daylight[1], sunset_index]]
+
+    return rise_noon_set_indexes
