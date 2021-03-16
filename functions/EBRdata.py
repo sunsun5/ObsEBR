@@ -15,17 +15,17 @@ def read_file(year, month, day):
 
      >> Files from 2011 and before have an introduction
         of 12 lines to be skipped. Have: EBRH,EBRZ,EBRF
-                                   To be added: EBRX,EBRY
+                                   Will be added: EBRX,EBRY
 
      >> Files between 2011 and 2017 (not included) generally have
         an introduction of 26 lines to be skipped. Have: EBRX,EBRY,EBRZ,EBRF
-                                                   To be added: EBRH
+                                                   Will be added: EBRH
           - Files from 2012 must skip 27 lines
           - 21-06-2015 special case with 34 lines to be skipped
 
      >> Files from 2017 and after generally have an introduction
         of 26 lines to be skipped. Have: EBRX,EBRY,EBRZ
-                                   To be added: EBRF
+                                   Will be added: EBRF
     """
 
     # Adapt url to desired date
@@ -78,22 +78,26 @@ def read_file(year, month, day):
     elif float(year) >= 2017:
         data = pd.read_csv(file, skiprows=26, delimiter='\\s+')
         #Total module EBRF is missing
-        data['EBRF'] = np.sqrt(data['EBRX']**2+data['EBRY']**2+data['EBRZ']**2)
+        data['EBRF'] = np.sqrt(
+            data['EBRX']**2+data['EBRY']**2+data['EBRZ']**2)
 
     else:
         data = pd.read_csv(file, skiprows=12, delimiter='\\s+')
         #X and Y components are missing
         data['EBRX'] = data['EBRH']*np.cos(np.radians(data['EBRD']/60))
         data['EBRY'] = data['EBRH']*np.sin(np.radians(data['EBRD']/60))
-
+    data['TIME'] = pd.to_datetime(data['DATE'] + ' ' + data['TIME'])
+    data['TIME'] = data['TIME'].dt.time
     return data
 
+# ---------------------------------------------------------------------
 
 def day_times(year, month, day):
     """
     Given a date (year, month, day), get the corresponding sunrise
     time, noon time and sunset time. Matrix also contains the matching
-    day minute, useful for time series with minute interval starting at 00:00.
+    day minute, useful for time series with minute interval starting
+    at 00:00.
 
     OUTPUT: [[sunrise datetime, sunrise day minute],
              [  noon datetime ,  noon day minute  ],
