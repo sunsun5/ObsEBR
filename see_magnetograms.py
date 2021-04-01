@@ -1,9 +1,9 @@
 from functions import read_file, day_times
 
 # Example date
-year = 2010
-month = 2
-day = 24
+year = 2004
+month = 7
+day = 20
 
 geo_data = read_file(year, month, day)
 

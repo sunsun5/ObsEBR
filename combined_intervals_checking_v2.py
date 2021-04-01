@@ -10,9 +10,9 @@ def strings_to_datetime(df):
     return df
 
 Intervals1 = pd.read_excel(
-    'intervals_an/intervals-0.985.xlsx', index_col=0)
+    'intervals_collections/intervals_anna/intervals-0.985.xlsx', index_col=0)
 Intervals2 = pd.read_excel(
-    'intervals_an/intervals-0.993.xlsx', index_col=0)
+    'intervals_collections/intervals_anna/intervals-0.983.xlsx', index_col=0)
 
 strings_to_datetime(Intervals1)
 strings_to_datetime(Intervals2)
@@ -30,7 +30,13 @@ def join_times(x):
     return mergdf
 
 mergdf = join_times(merged)
-grouped_df = merged.groupby("group")
+grouped_df = merged.groupby('group')
 combined = pd.DataFrame()
-combined= grouped_df.min()
-combined['hora final'] = grouped_df['hora final'].max()
+combined = grouped_df.max()
+combined['hora inici'] = grouped_df['hora inici'].min()
+print(len(combined[combined['resultat'] == 'VERDADERO']))
+print(len(combined[combined['resultat'] == 'FALSO']))
+print(len(Intervals1[Intervals1['resultat'] == 'VERDADERO']))
+print(len(Intervals1[Intervals1['resultat'] == 'FALSO']))
+print(len(Intervals2[Intervals2['resultat'] == 'VERDADERO']))
+print(len(Intervals2[Intervals2['resultat'] == 'FALSO']))
