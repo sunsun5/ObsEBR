@@ -12,7 +12,7 @@ def strings_to_datetime(df):
 Intervals1 = pd.read_excel(
     'intervals_collections/intervals_anna/intervals-0.985.xlsx', index_col=0)
 Intervals2 = pd.read_excel(
-    'intervals_collections/intervals_anna/intervals-0.983.xlsx', index_col=0)
+    'intervals_collections/intervals_alba/alba-0.4.xlsx', index_col=None)
 
 strings_to_datetime(Intervals1)
 strings_to_datetime(Intervals2)
