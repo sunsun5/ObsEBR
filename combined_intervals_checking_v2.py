@@ -10,9 +10,9 @@ def strings_to_datetime(df):
     return df
 
 Intervals1 = pd.read_excel(
-    'intervals_collections/intervals_anna/intervals-0.989.xlsx', index_col=0)
+    'intervals_collections/intervals_anna/intervals-0.99.xlsx', index_col=0)
 Intervals2 = pd.read_csv(
-    'intervals_collections/intervals_alba/alba-0.5.csv', index_col=None, delimiter=';')
+    'intervals_collections/intervals_alba/alba-0.7.csv', index_col=None, delimiter=';')
 
 strings_to_datetime(Intervals1)
 strings_to_datetime(Intervals2)
@@ -23,6 +23,19 @@ def join_times(x):
     startdf = pd.DataFrame({'time':x['hora inici'], 'what':1})
     enddf = pd.DataFrame({'time':x['hora final'], 'what':-1})
     mergdf = pd.concat([startdf, enddf]).sort_values('time')
+    mergdf['running'] = mergdf['what'].cumsum()
+    mergdf['newwin'] = mergdf['running'].eq(1) & mergdf['what'].eq(1)
+    mergdf['group'] = mergdf['newwin'].cumsum()
+    x['group'] = mergdf['group'].loc[mergdf['what'].eq(1)]
+    return mergdf
+
+def rejoin_times(x):
+    startdf = pd.DataFrame({'time':x['hora inici'], 'what':1})
+    enddf = pd.DataFrame({'time':x['hora final'], 'what':-1})
+    mergdf = pd.concat([startdf, enddf]).sort_values('time')
+    mergdf.loc[(
+        mergdf.time.shift() <
+        mergdf.time - 3), 'group'] = 1
     mergdf['running'] = mergdf['what'].cumsum()
     mergdf['newwin'] = mergdf['running'].eq(1) & mergdf['what'].eq(1)
     mergdf['group'] = mergdf['newwin'].cumsum()
